@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Cronograma MBA DSA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #111318;
+  --border: #1e2229;
+  --border-light: #2a2f38;
+  --accent: #00d4aa;
+  --accent-dim: rgba(0,212,170,0.12);
+  --gold: #f5c842;
+  --gold-dim: rgba(245,200,66,0.12);
+  --red: #ff5858;
+  --red-dim: rgba(255,88,88,0.1);
+  --blue: #4d9fff;
+  --blue-dim: rgba(77,159,255,0.1);
+  --purple: #b57bff;
+  --purple-dim: rgba(181,123,255,0.12);
+  --text: #e8eaf0;
+  --text-muted: #6b7280;
+  --text-dim: #9ca3af;
+  --radius: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 15px; }
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.header-group { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.header-logo {
+  width: 44px; height: 44px; object-fit: contain;
+  border-radius: 8px; background: #fff; padding: 4px; flex-shrink: 0;
+}
+.header-left { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.header-badge {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1.5px;
+  color: var(--accent); text-transform: uppercase;
+  background: var(--accent-dim); border: 1px solid rgba(0,212,170,0.2);
+  padding: 2px 7px; border-radius: 3px; width: fit-content;
+}
+.header h1 { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; white-space: nowrap; }
+.header h1 span { color: var(--accent); }
+.header-name { font-family: 'DM Mono', monospace; font-size: 10px; color: #f472b6; }
+
+/* Month filter in header */
+.month-filter-wrap { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.month-select {
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase;
+  background: var(--surface); border: 1px solid var(--border-light);
+  color: var(--text-dim); padding: 6px 24px 6px 10px; border-radius: 6px;
+  cursor: pointer; outline: none; transition: all 0.15s;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 7px center;
+  max-width: 120px;
+}
+.month-select:focus { border-color: var(--accent); color: var(--text); }
+.clear-month-btn {
+  width: 24px; height: 24px; border-radius: 5px; border: 1px solid var(--border-light);
+  background: transparent; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; color: var(--text-muted); transition: all 0.15s; flex-shrink: 0;
+}
+.clear-month-btn:active { background: var(--red-dim); color: var(--red); }
+.clear-month-btn.hidden { display: none; }
+
+/* ── STATS GRID ── */
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.stat-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase; }
+.stat-value { font-size: 22px; font-weight: 800; line-height: 1; color: var(--text); }
+.stat-value.c-accent { color: var(--accent); }
+.stat-value.c-gold   { color: var(--gold); }
+.stat-value.c-blue   { color: var(--blue); }
+.stat-value.c-purple { color: var(--purple); }
+
+/* ── PROGRESS ── */
+.progress-section { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+.progress-row { display: flex; flex-direction: column; gap: 5px; }
+.progress-header { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); }
+.progress-bar-bg { width: 100%; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+.fill-aulas { background: linear-gradient(90deg, var(--accent), #00f0c3); }
+.fill-evals { background: linear-gradient(90deg, var(--purple), #c084fc); }
+
+/* ── TABS ── */
+.tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+  background: var(--surface); padding: 0 16px;
+}
+.tab-btn {
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; background: transparent; border: none;
+  color: var(--text-muted); padding: 14px 16px; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all 0.15s; display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-btn.active.eval-tab { color: var(--purple); border-bottom-color: var(--purple); }
+.tab-count {
+  font-size: 9px; padding: 2px 6px; border-radius: 20px;
+  background: var(--border); color: var(--text-muted);
+}
+.tab-btn.active .tab-count { background: var(--accent-dim); color: var(--accent); }
+.tab-btn.active.eval-tab .tab-count { background: var(--purple-dim); color: var(--purple); }
+
+/* ── PANEL ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── FILTER BAR ── */
+.panel-controls {
+  padding: 10px 16px; display: flex; gap: 6px; align-items: center;
+  border-bottom: 1px solid var(--border); overflow-x: auto;
+  scrollbar-width: none;
+}
+.panel-controls::-webkit-scrollbar { display: none; }
+.filter-btn {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; background: var(--surface);
+  border: 1px solid var(--border-light); color: var(--text-dim);
+  padding: 6px 11px; border-radius: 6px; cursor: pointer; transition: all 0.15s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.filter-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.filter-btn.eval-style.active { background: var(--purple-dim); border-color: var(--purple); color: var(--purple); }
+.spacer { flex: 1; min-width: 8px; }
+.add-toggle-btn {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; background: transparent;
+  border: 1px dashed var(--border-light); color: var(--text-muted);
+  padding: 6px 11px; border-radius: 6px; cursor: pointer; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+}
+
+/* ── ADD FORM ── */
+.add-form-wrap { border-bottom: 1px solid var(--border); }
+.add-form { display: none; padding: 14px 16px; background: rgba(255,255,255,0.01); }
+.add-form.open { display: flex; flex-direction: column; gap: 10px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase; }
+.form-group input {
+  background: var(--surface); border: 1px solid var(--border-light);
+  color: var(--text); font-family: 'Syne', sans-serif; font-size: 14px;
+  padding: 10px 12px; border-radius: 7px; outline: none; width: 100%;
+}
+.form-group input:focus { border-color: var(--accent); }
+.form-group input.eval-focus:focus { border-color: var(--purple); }
+.form-group input::placeholder { color: var(--text-muted); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-add {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+  border: none; padding: 12px; border-radius: 7px; cursor: pointer; width: 100%;
+}
+.btn-add-aula { background: var(--accent); color: #000; }
+.btn-add-eval  { background: var(--purple); color: #000; }
+
+/* ── CARDS (mobile list view) ── */
+.card-list { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.item-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px;
+  display: flex; align-items: flex-start; gap: 12px;
+  transition: background 0.1s;
+}
+.item-card.done-row   { background: rgba(0,40,30,0.25); border-color: rgba(74,222,128,0.08); }
+.item-card.done-row-eval { background: rgba(30,20,50,0.25); border-color: rgba(181,123,255,0.08); }
+
+.card-check {
+  width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0; margin-top: 1px;
+  border: 1.5px solid var(--border-light); background: transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.card-check:active { transform: scale(0.92); }
+.card-check.checked { background: var(--accent); border-color: var(--accent); }
+.card-check.eval-check.checked { background: var(--purple); border-color: var(--purple); }
+.card-check.eval-check { border-color: var(--purple); }
+
+.card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.card-title {
+  font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4;
+}
+.done-row .card-title, .done-row-eval .card-title {
+  color: var(--text-muted); text-decoration: line-through; text-decoration-color: rgba(107,114,128,0.35);
+}
+.card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+.date-pill {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  background: var(--bg); border: 1px solid var(--border-light);
+  color: var(--text-dim); padding: 3px 8px; border-radius: 5px; white-space: nowrap;
+}
+.date-pill.missing { opacity: 0.4; border-style: dashed; }
+
+.badge {
+  font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 4px; white-space: nowrap;
+}
+.badge-done    { background: rgba(74,222,128,0.1);  color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+.badge-pending { background: var(--gold-dim);        color: var(--gold);   border: 1px solid rgba(245,200,66,0.2); }
+.badge-open    { background: var(--blue-dim);        color: var(--blue);   border: 1px solid rgba(77,159,255,0.2); }
+.badge-eval-done    { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(181,123,255,0.25); }
+.badge-eval-open    { background: var(--gold-dim);   color: var(--gold);   border: 1px solid rgba(245,200,66,0.2); }
+.badge-eval-pending { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(77,159,255,0.2); }
+
+.card-del {
+  width: 28px; height: 28px; border-radius: 6px; border: 1px solid transparent;
+  background: transparent; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; color: var(--text-muted); flex-shrink: 0; margin-top: 1px;
+  transition: all 0.15s;
+}
+.card-del:active { background: var(--red-dim); color: var(--red); }
+
+/* inline date input */
+.date-input-inline {
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  background: var(--bg); border: 1px dashed var(--purple);
+  color: var(--text-dim); padding: 3px 8px; border-radius: 5px;
+  outline: none; width: 130px;
+}
+.date-input-inline::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+
+.empty-state {
+  text-align: center; padding: 48px 20px; color: var(--text-muted);
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 1px;
+}
+
+/* eval date row */
+.eval-dates { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.eval-date-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+
+::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-group">
+    <img class="header-logo" src="data:image/webp;base64,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" alt="MBA USP ESALQ" />
+    <div class="header-left">
+      <span class="header-badge">MBA USP / ESALQ</span>
+      <h1>Cronograma <span>DSA</span></h1>
+      <span class="header-name">Silviele Sousa</span>
+    </div>
+  </div>
+  <div class="month-filter-wrap">
+    <select class="month-select" id="month-select-global" onchange="setMonthFilter('global',this.value)">
+      <option value="">TODOS OS MESES</option>
+    </select>
+    <button class="clear-month-btn hidden" id="clear-month-global" onclick="clearMonthFilter('global')" title="Limpar">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-label">Total Aulas</span>
+    <span class="stat-value" id="s-aulas-total">0</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Concluídas</span>
+    <span class="stat-value c-accent" id="s-aulas-done">0</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Total Aval.</span>
+    <span class="stat-value c-blue" id="s-evals-total">0</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">Aval. Feitas</span>
+    <span class="stat-value c-purple" id="s-evals-done">0</span>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-section">
+  <div class="progress-row">
+    <div class="progress-header">
+      <span>Progresso das aulas</span>
+      <span id="pct-aulas">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill fill-aulas" id="bar-aulas" style="width:0%"></div>
+    </div>
+  </div>
+  <div class="progress-row">
+    <div class="progress-header">
+      <span>Progresso das avaliações</span>
+      <span id="pct-evals">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill fill-evals" id="bar-evals" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" id="tab-aulas" onclick="switchTab('aulas')">
+    Aulas <span class="tab-count" id="tc-aulas">0</span>
+  </button>
+  <button class="tab-btn eval-tab" id="tab-evals" onclick="switchTab('evals')">
+    Avaliações <span class="tab-count" id="tc-evals">0</span>
+  </button>
+</div>
+
+<!-- PANEL AULAS -->
+<div class="panel active" id="panel-aulas">
+  <div class="panel-controls">
+    <button class="filter-btn active" onclick="setFilter('aulas','all',this)">Todas</button>
+    <button class="filter-btn" onclick="setFilter('aulas','done',this)">Concluídas</button>
+    <button class="filter-btn" onclick="setFilter('aulas','pending',this)">Pendentes</button>
+    <div class="spacer"></div>
+    <button class="add-toggle-btn" onclick="toggleForm('form-aulas')">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+      Adicionar
+    </button>
+  </div>
+  <div class="add-form-wrap">
+    <div class="add-form" id="form-aulas">
+      <div class="form-group">
+        <label>Nome da Matéria</label>
+        <input type="text" id="a-subject" placeholder="Ex: Deep Learning I" />
+      </div>
+      <div class="form-group">
+        <label>Data</label>
+        <input type="date" id="a-date" />
+      </div>
+      <button class="btn-add btn-add-aula" onclick="addAula()">Adicionar Aula</button>
+    </div>
+  </div>
+  <div class="card-list" id="cards-aulas"></div>
+</div>
+
+<!-- PANEL AVALIAÇÕES -->
+<div class="panel" id="panel-evals">
+  <div class="panel-controls">
+    <button class="filter-btn eval-style active" onclick="setFilter('evals','all',this)">Todas</button>
+    <button class="filter-btn eval-style" onclick="setFilter('evals','done',this)">Concluídas</button>
+    <button class="filter-btn eval-style" onclick="setFilter('evals','open',this)">Em aberto</button>
+    <button class="filter-btn eval-style" onclick="setFilter('evals','pending',this)">A definir</button>
+    <div class="spacer"></div>
+    <button class="add-toggle-btn eval-style" onclick="toggleForm('form-evals')">
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+      Adicionar
+    </button>
+  </div>
+  <div class="add-form-wrap">
+    <div class="add-form" id="form-evals">
+      <div class="form-group">
+        <label>Nome da Avaliação</label>
+        <input type="text" id="e-subject" placeholder="Ex: Avaliação de Deep Learning I" class="eval-focus" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Início</label>
+          <input type="date" id="e-start" class="eval-focus" />
+        </div>
+        <div class="form-group">
+          <label>Prazo Final</label>
+          <input type="date" id="e-end" class="eval-focus" />
+        </div>
+      </div>
+      <button class="btn-add btn-add-eval" onclick="addEval()">Adicionar Avaliação</button>
+    </div>
+  </div>
+  <div class="card-list" id="cards-evals"></div>
+</div>
+
+<script>
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function excelToIso(s) {
+  if (!s || isNaN(s)) return null;
+  const n = Number(s);
+  if (n > 200000) return null;
+  const d = new Date((n - 25569) * 86400 * 1000);
+  return isNaN(d) ? null : d.toISOString().slice(0,10);
+}
+function fmt(iso) {
+  if (!iso) return null;
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function checkSvg(on) {
+  return on
+    ? `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#000" stroke-width="2.2"><polyline points="2,7 5.5,10.5 11,3"/></svg>`
+    : `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3"><polyline points="2,7 5.5,10.5 11,3" opacity="0"/></svg>`;
+}
+function xSvg() {
+  return `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="2" x2="11" y2="11"/><line x1="11" y1="2" x2="2" y2="11"/></svg>`;
+}
+
+// ─── RAW DATA ─────────────────────────────────────────────────────────────────
+const RAW_AULAS = [
+  [45940,"Boas Vindas",true],
+  [45944,"Abertura do Curso",true],
+  [45947,"Fundamentos de Estatística I",true],
+  [45952,"Fundamentos de Estatística II",true],
+  [45954,"Fundamentos de Estatística III",true],
+  [45961,"Introdução à Programação com Python I",true],
+  [45965,"Introdução à Programação com Python II",true],
+  [45966,"Introdução à Programação com Python III",true],
+  [45972,"Unsupervised Machine Learning I: Clustering I",true],
+  [45979,"Unsupervised Machine Learning I: Clustering II",true],
+  [45986,"Unsupervised Machine Learning: Análise Fatorial e PCA I",true],
+  [45993,"Unsupervised Machine Learning: Análise Fatorial e PCA II",true],
+  [46035,"Unsupervised Machine Learning: Análise de Correspondência Simples e Múltipla I",true],
+  [46042,"Unsupervised Machine Learning: Análise de Correspondência Simples e Múltipla II",true],
+  [46049,"Unsupervised Machine Learning: Exercícios Aplicados",true],
+  [46056,"Supervised Machine Learning: Análise de Regressão Simples e Múltipla I",true],
+  [46063,"Supervised Machine Learning: Análise de Regressão Simples e Múltipla II",true],
+  [46065,"Como Construir um TCC de Sucesso?",true],
+  [46077,"Supervised Machine Learning: Análise de Regressão Simples e Múltipla III",true],
+  [46084,"Supervised Machine Learning: Análise de Regressão Simples e Múltipla IV",true],
+  [46091,"Supervised Machine Learning: Modelos Logísticos Binários e Multinomiais I",true],
+  [46098,"Supervised Machine Learning: Modelos Logísticos Binários e Multinomiais II",true],
+  [46105,"Supervised Machine Learning: Modelos para Dados de Contagem I",true],
+  [46112,"Supervised Machine Learning: Modelos para Dados de Contagem II",true],
+  [46119,"Supervised Machine Learning: Modelagem Multinível I",true],
+  [46126,"Supervised Machine Learning: Modelagem Multinível II",true],
+  [46136,"Big Data e Deployment de Modelos I",true],
+  [46140,"Big Data e Deployment de Modelos II",true],
+  [46154,"Prova dos Vídeos do TCC",true],
+  [46154,"Séries Temporais I",true],
+  [46161,"Séries Temporais II",false],
+  [46168,"Séries Temporais III",false],
+  [46175,"Data Wrangling I",false],
+  [46182,"Data Wrangling II",false],
+  [46189,"Data Wrangling III",false],
+  [46196,"Data Wrangling IV",false],
+  [46203,"Coleta de Dados: Crawlers e Web Scraping",false],
+  [46217,"Text Mining, Sentiment Analysis e NLP I",false],
+  [46224,"Text Mining, Sentiment Analysis e NLP II",false],
+  [46231,"Text Mining, Sentiment Analysis e NLP III",false],
+  [46238,"Pesquisa Operacional e Modelos de Otimização I",false],
+  [46245,"Pesquisa Operacional e Modelos de Otimização II",false],
+  [46252,"Pesquisa Operacional e Modelos de Otimização III",false],
+];
+
+const RAW_EVALS = [
+  [45969,45998,"Avaliação de Fundamentos de Estatística e Introdução à Programação com Python",true],
+  [45975,45995,"Avaliação de Unsupervised Machine Learning: Clustering I",true],
+  [45982,46002,"Avaliação de Unsupervised Machine Learning: Clustering II",true],
+  [45989,46009,"Avaliação de Unsupervised Machine Learning: Análise Fatorial e PCA I",true],
+  [45996,46016,"Avaliação de Unsupervised Machine Learning: Análise Fatorial e PCA II",true],
+  [46038,46058,"Avaliação de Unsupervised Machine Learning: Análise de Correspondência Simples e Múltipla I",true],
+  [46045,46065,"Avaliação de Unsupervised Machine Learning: Análise de Correspondência Simples e Múltipla II",true],
+  [46052,46072,"Avaliação de Unsupervised Machine Learning: Exercícios Aplicados",true],
+  [46059,46079,"Avaliação de Supervised Machine Learning: Análise de Regressão Simples e Múltipla I",true],
+  [46066,46086,"Avaliação de Supervised Machine Learning: Análise de Regressão Simples e Múltipla II",true],
+  [46067,46087,"Avaliação de Como Construir um TCC de Sucesso?",true],
+  [46080,46100,"Avaliação de Supervised Machine Learning: Análise de Regressão Simples e Múltipla III",true],
+  [46087,46107,"Avaliação de Supervised Machine Learning: Análise de Regressão Simples e Múltipla IV",true],
+  [46094,46114,"Avaliação de Supervised Machine Learning: Modelos Logísticos Binários e Multinomiais I",true],
+  [46101,46121,"Avaliação de Supervised Machine Learning: Modelos Logísticos Binários e Multinomiais II",true],
+  [46108,46128,"Avaliação de Supervised Machine Learning: Modelos para Dados de Contagem I",true],
+  [46115,46135,"Avaliação de Supervised Machine Learning: Modelos para Dados de Contagem II",true],
+  [46122,46142,"Avaliação de Supervised Machine Learning: Modelagem Multinível I",true],
+  [46129,46149,"Avaliação de Supervised Machine Learning: Modelagem Multinível II",true],
+  [46141,46161,"Avaliação de Big Data e Deployment de Modelos I",true],
+  [46143,46163,"Avaliação de Big Data e Deployment de Modelos II",true],
+  [46185,46174,"Prova dos vídeos do TCC",true],
+  [46157,46177,"Avaliação de Séries Temporais I",true],
+  [46164,46184,"Avaliação de Séries Temporais II",false],
+  [46171,46189,"Avaliação de Séries Temporais III",false],
+  [null,null,"Avaliação de Data Wrangling I",false],
+  [null,null,"Avaliação de Data Wrangling II",false],
+  [null,null,"Avaliação de Data Wrangling III",false],
+  [null,null,"Avaliação de Data Wrangling IV",false],
+  [null,null,"Avaliação de Coleta de Dados: Crawlers e Web Scraping",false],
+  [null,null,"Avaliação de Text Mining, Sentiment Analysis e NLP I",false],
+  [null,null,"Avaliação de Text Mining, Sentiment Analysis e NLP II",false],
+  [null,null,"Avaliação de Text Mining, Sentiment Analysis e NLP III",false],
+  [null,null,"Avaliação de Pesquisa Operacional e Modelos de Otimização I",false],
+  [null,null,"Avaliação de Pesquisa Operacional e Modelos de Otimização II",false],
+  [null,null,"Avaliação de Pesquisa Operacional e Modelos de Otimização III",false],
+];
+
+function buildAulas() {
+  return RAW_AULAS.map((r,i) => ({
+    id: 'a_'+i, dateIso: excelToIso(r[0]), subject: r[1], done: r[2]
+  }));
+}
+function buildEvals() {
+  return RAW_EVALS.map((r,i) => ({
+    id: 'e_'+i, startIso: excelToIso(r[0]), endIso: excelToIso(r[1]), subject: r[2], done: r[3]
+  }));
+}
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const KEY = 'mba_dsa_v4';
+function loadAll() {
+  try {
+    const s = localStorage.getItem(KEY);
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return { aulas: buildAulas(), evals: buildEvals() };
+}
+function saveAll() {
+  localStorage.setItem(KEY, JSON.stringify({ aulas, evals }));
+  document.getElementById('save-note').textContent =
+    'Salvo ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+
+const data = loadAll();
+let aulas = data.aulas;
+let evals = data.evals;
+let filterAulas = 'all';
+let filterEvals = 'all';
+let activeTab = 'aulas';
+
+// ─── RENDER AULAS (MOBILE CARDS) ─────────────────────────────────────────────
+function renderAulas() {
+  let list = aulas;
+  if (filterAulas === 'done')    list = aulas.filter(a => a.done);
+  if (filterAulas === 'pending') list = aulas.filter(a => !a.done);
+  if (monthFilterGlobal) list = list.filter(a => a.dateIso && a.dateIso.slice(0,7) === monthFilterGlobal);
+
+  const tbody = document.getElementById('tbody-aulas');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Nenhuma aula nesta categoria</td></tr>`;
+  } else {
+    tbody.innerHTML = list.map(a => {
+      const rc = a.done ? 'done-row' : '';
+      const dp = a.dateIso
+        ? `<span class="date-pill">${fmt(a.dateIso)}</span>`
+        : `<span class="date-pill missing">—</span>`;
+      const badge = a.done
+        ? `<span class="badge badge-done">Concluída</span>`
+        : `<span class="badge badge-pending">Pendente</span>`;
+      return `<tr class="${rc}">
+        <td><button class="check-btn ${a.done?'checked':''}" onclick="toggleAula('${a.id}')">${checkSvg(a.done)}</button></td>
+        <td>${dp}</td>
+        <td class="td-main">${a.subject}</td>
+        <td>${badge}</td>
+        <td><button class="del-btn" onclick="delAula('${a.id}')">${xSvg()}</button></td>
+      </tr>`;
+    }).join('');
+  }
+  populateMonthSelects();
+  updateStats();
+}
+
+// ─── RENDER EVALS ─────────────────────────────────────────────────────────────
+function evalStatus(e) {
+  if (e.done) return 'done';
+  if (e.startIso) return 'open';
+  return 'pending';
+}
+function renderEvals() {
+  let list = evals;
+  if (filterEvals === 'done')    list = evals.filter(e => e.done);
+  if (filterEvals === 'open')    list = evals.filter(e => !e.done && e.startIso);
+  if (filterEvals === 'pending') list = evals.filter(e => !e.done && !e.startIso);
+  if (monthFilterGlobal) list = list.filter(e => {
+    const ref = e.endIso || e.startIso;
+    return ref && ref.slice(0,7) === monthFilterGlobal;
+  });
+
+  const tbody = document.getElementById('tbody-evals');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state">Nenhuma avaliação nesta categoria</td></tr>`;
+  } else {
+    tbody.innerHTML = list.map(e => {
+      const st = evalStatus(e);
+      const rc = e.done ? 'done-row-eval' : '';
+      const sp = e.startIso
+        ? `<span class="date-pill">${fmt(e.startIso)}</span>`
+        : `<input class="date-input-inline" type="date" title="Definir data de início" onchange="setEvalDate('${e.id}','start',this.value)" />`;
+      const ep = e.endIso
+        ? `<span class="date-pill">${fmt(e.endIso)}</span>`
+        : `<input class="date-input-inline" type="date" title="Definir data final" onchange="setEvalDate('${e.id}','end',this.value)" />`;
+      const badge =
+        st === 'done'    ? `<span class="badge badge-eval-done">Concluída</span>` :
+        st === 'open'    ? `<span class="badge badge-eval-open">Em aberto</span>` :
+                           `<span class="badge badge-eval-pending">A definir</span>`;
+      return `<tr class="${rc}">
+        <td><button class="check-btn eval-check ${e.done?'checked':''}" onclick="toggleEval('${e.id}')">${checkSvg(e.done)}</button></td>
+        <td class="td-main">${e.subject}</td>
+        <td>${sp}</td>
+        <td>${ep}</td>
+        <td>${badge}</td>
+        <td><button class="del-btn" onclick="delEval('${e.id}')">${xSvg()}</button></td>
+      </tr>`;
+    }).join('');
+  }
+  populateMonthSelects();
+  updateStats();
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const mf = monthFilterGlobal;
+  const aulasList = mf ? aulas.filter(a => a.dateIso && a.dateIso.slice(0,7) === mf) : aulas;
+  const evalsList  = mf ? evals.filter(e => { const r = e.endIso||e.startIso; return r && r.slice(0,7)===mf; }) : evals;
+
+  const at = aulasList.length, ad = aulasList.filter(a=>a.done).length;
+  const et = evalsList.length,  ed = evalsList.filter(e=>e.done).length;
+  const eo = evalsList.filter(e=>!e.done && e.startIso).length;
+  const apct = at ? Math.round(ad/at*100) : 0;
+  const epct = et ? Math.round(ed/et*100) : 0;
+
+  const _set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const _wid = (id, val) => { const el = document.getElementById(id); if (el) el.style.width = val; };
+  _set('s-aulas-total', at);
+  _set('s-aulas-done', ad);
+  _set('s-evals-total', et);
+  _set('s-evals-done', ed);
+  _set('s-evals-open', eo);
+  _set('pct-aulas', apct+'%');
+  _wid('bar-aulas', apct+'%');
+  _set('pct-evals', epct+'%');
+  _wid('bar-evals', epct+'%');
+  _set('tc-aulas', at);
+  _set('tc-evals', et);
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+function toggleAula(id) {
+  const a = aulas.find(x=>x.id===id); if(a){a.done=!a.done; saveAll(); renderAulas();}
+}
+function toggleEval(id) {
+  const e = evals.find(x=>x.id===id); if(e){e.done=!e.done; saveAll(); renderEvals();}
+}
+function delAula(id) {
+  if(!confirm('Remover esta aula?')) return;
+  aulas = aulas.filter(x=>x.id!==id); saveAll(); renderAulas();
+}
+function delEval(id) {
+  if(!confirm('Remover esta avaliação?')) return;
+  evals = evals.filter(x=>x.id!==id); saveAll(); renderEvals();
+}
+function addAula() {
+  const subject = document.getElementById('a-subject').value.trim();
+  if(!subject){alert('Informe o nome da matéria.');return;}
+  aulas.push({
+    id:'a_c_'+Date.now(),
+    dateIso: document.getElementById('a-date').value || null,
+    subject, done: false
+  });
+  document.getElementById('a-date').value='';
+  document.getElementById('a-subject').value='';
+  document.getElementById('form-aulas').classList.remove('open');
+  saveAll(); renderAulas();
+}
+function addEval() {
+  const subject = document.getElementById('e-subject').value.trim();
+  if(!subject){alert('Informe o nome da avaliação.');return;}
+  evals.push({
+    id:'e_c_'+Date.now(),
+    startIso: document.getElementById('e-start').value || null,
+    endIso:   document.getElementById('e-end').value   || null,
+    subject, done: false
+  });
+  document.getElementById('e-subject').value='';
+  document.getElementById('e-start').value='';
+  document.getElementById('e-end').value='';
+  document.getElementById('form-evals').classList.remove('open');
+  saveAll(); renderEvals();
+}
+function toggleForm(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+function setFilter(type, val, btn) {
+  if(type==='aulas'){
+    filterAulas=val;
+    document.querySelectorAll('#panel-aulas .filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderAulas();
+  } else {
+    filterEvals=val;
+    document.querySelectorAll('#panel-evals .filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderEvals();
+  }
+}
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('panel-aulas').classList.toggle('active', tab==='aulas');
+  document.getElementById('panel-evals').classList.toggle('active', tab==='evals');
+  document.getElementById('tab-aulas').classList.toggle('active', tab==='aulas');
+  document.getElementById('tab-evals').classList.toggle('active', tab==='evals');
+}
+
+// ─── MONTH FILTER (GLOBAL) ───────────────────────────────────────────────────
+let monthFilterGlobal = '';
+
+const MONTHS_ABR = ['JAN','FEV','MAR','ABR','MAI','JUN',
+                    'JUL','AGO','SET','OUT','NOV','DEZ'];
+
+function fmtMonth(ym) {
+  const [y, mo] = ym.split('-');
+  return MONTHS_ABR[parseInt(mo)-1] + '/' + y.slice(2);
+}
+
+function populateMonthSelects() {
+  // Collect all months from aulas (dateIso) and evals (endIso or startIso)
+  const allMonths = [...new Set([
+    ...aulas.filter(a => a.dateIso).map(a => a.dateIso.slice(0,7)),
+    ...evals.filter(e => e.endIso || e.startIso).map(e => (e.endIso || e.startIso).slice(0,7))
+  ])].sort();
+
+  const sel = document.getElementById('month-select-global');
+  const cur = sel ? sel.value : '';
+  if (sel) {
+    sel.innerHTML = '<option value="">TODOS OS MESES</option>' +
+      allMonths.map(m =>
+        `<option value="${m}" ${m===cur?'selected':''}>${fmtMonth(m)}</option>`
+      ).join('');
+  }
+}
+
+function setMonthFilter(type, value) {
+  monthFilterGlobal = value;
+  const btn = document.getElementById('clear-month-global');
+  if (btn) btn.classList.toggle('hidden', !value);
+  renderAulas();
+  renderEvals();
+}
+
+function clearMonthFilter(type) {
+  monthFilterGlobal = '';
+  const sel = document.getElementById('month-select-global');
+  if (sel) sel.value = '';
+  const btn = document.getElementById('clear-month-global');
+  if (btn) btn.classList.add('hidden');
+  renderAulas();
+  renderEvals();
+}
+
+function setEvalDate(id, field, value) {
+  const e = evals.find(x => x.id === id);
+  if (!e || !value) return;
+  if (field === 'start') e.startIso = value;
+  if (field === 'end')   e.endIso   = value;
+  saveAll(); renderEvals();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderAulas();
+renderEvals();
+
+
+// ─── MOBILE: override render functions with card layout ───────────────────────
+function renderAulas() {
+  let list = aulas;
+  if (filterAulas === 'done')    list = aulas.filter(a => a.done);
+  if (filterAulas === 'pending') list = aulas.filter(a => !a.done);
+  if (monthFilterGlobal) list = list.filter(a => a.dateIso && a.dateIso.slice(0,7) === monthFilterGlobal);
+
+  const container = document.getElementById('cards-aulas');
+  if (!list.length) {
+    container.innerHTML = `<div class="empty-state">Nenhuma aula nesta categoria</div>`;
+  } else {
+    container.innerHTML = list.map(a => {
+      const rc = a.done ? 'done-row' : '';
+      const dp = a.dateIso
+        ? `<span class="date-pill">${fmt(a.dateIso)}</span>`
+        : `<span class="date-pill missing">sem data</span>`;
+      const badge = a.done
+        ? `<span class="badge badge-done">Concluída</span>`
+        : `<span class="badge badge-pending">Pendente</span>`;
+      const chk = `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="${a.done?'#000':'currentColor'}" stroke-width="2.2"><polyline points="2,7 5.5,10.5 11,3" ${a.done?'':'opacity="0"'}/></svg>`;
+      return `<div class="item-card ${rc}">
+        <button class="card-check ${a.done?'checked':''}" onclick="toggleAula('${a.id}')">${chk}</button>
+        <div class="card-body">
+          <div class="card-title">${a.subject}</div>
+          <div class="card-meta">${dp}${badge}</div>
+        </div>
+        <button class="card-del" onclick="delAula('${a.id}')">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+  }
+  populateMonthSelects();
+  updateStats();
+}
+
+function renderEvals() {
+  let list = evals;
+  if (filterEvals === 'done')    list = evals.filter(e => e.done);
+  if (filterEvals === 'open')    list = evals.filter(e => !e.done && e.startIso);
+  if (filterEvals === 'pending') list = evals.filter(e => !e.done && !e.startIso);
+  if (monthFilterGlobal) list = list.filter(e => {
+    const ref = e.endIso || e.startIso;
+    return ref && ref.slice(0,7) === monthFilterGlobal;
+  });
+
+  const container = document.getElementById('cards-evals');
+  if (!list.length) {
+    container.innerHTML = `<div class="empty-state">Nenhuma avaliação nesta categoria</div>`;
+  } else {
+    container.innerHTML = list.map(e => {
+      const st = evalStatus(e);
+      const rc = e.done ? 'done-row-eval' : '';
+      const sp = e.startIso
+        ? `<span class="date-pill">${fmt(e.startIso)}</span>`
+        : `<input class="date-input-inline" type="date" title="Definir início" onchange="setEvalDate('${e.id}','start',this.value)" />`;
+      const ep = e.endIso
+        ? `<span class="date-pill">${fmt(e.endIso)}</span>`
+        : `<input class="date-input-inline" type="date" title="Definir prazo" onchange="setEvalDate('${e.id}','end',this.value)" />`;
+      const badge =
+        st==='done'  ? `<span class="badge badge-eval-done">Concluída</span>` :
+        st==='open'  ? `<span class="badge badge-eval-open">Em aberto</span>` :
+                       `<span class="badge badge-eval-pending">A definir</span>`;
+      const chk = `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="${e.done?'#000':'currentColor'}" stroke-width="2.2"><polyline points="2,7 5.5,10.5 11,3" ${e.done?'':'opacity="0"'}/></svg>`;
+      return `<div class="item-card ${rc}">
+        <button class="card-check eval-check ${e.done?'checked':''}" onclick="toggleEval('${e.id}')">${chk}</button>
+        <div class="card-body">
+          <div class="card-title">${e.subject}</div>
+          <div class="eval-dates">
+            <span class="eval-date-label">Início</span>${sp}
+            <span class="eval-date-label">Fim</span>${ep}
+          </div>
+          <div class="card-meta">${badge}</div>
+        </div>
+        <button class="card-del" onclick="delEval('${e.id}')">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+        </button>
+      </div>`;
+    }).join('');
+  }
+  populateMonthSelects();
+  updateStats();
+}
+
+renderAulas();
+renderEvals();
+</script>
+</body>
+</html>
