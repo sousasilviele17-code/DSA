@@ -528,13 +528,16 @@ function loadAll() {
 }
 function saveAll() {
   localStorage.setItem(KEY, JSON.stringify({ aulas, evals }));
-  document.getElementById('save-note').textContent =
-    'Salvo ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  // Firebase sync triggered via custom event
+  window.dispatchEvent(new CustomEvent('mba-save', { detail: { aulas, evals } }));
 }
 
 const data = loadAll();
 let aulas = data.aulas;
 let evals = data.evals;
+// Expose for Firebase sync
+Object.defineProperty(window, '_aulas', { get: () => aulas, set: v => { aulas = v; } });
+Object.defineProperty(window, '_evals', { get: () => evals, set: v => { evals = v; } });
 let filterAulas = 'all';
 let filterEvals = 'all';
 let activeTab = 'aulas';
@@ -858,5 +861,54 @@ function renderEvals() {
 renderAulas();
 renderEvals();
 </script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAIly-955GPUOFmOaNkDTD6TwBHuLAdQJ4",
+  authDomain: "mba-dsa-12d4a.firebaseapp.com",
+  databaseURL: "https://mba-dsa-12d4a-default-rtdb.firebaseio.com",
+  projectId: "mba-dsa-12d4a",
+  storageBucket: "mba-dsa-12d4a.firebasestorage.app",
+  messagingSenderId: "921871006280",
+  appId: "1:921871006280:web:c4e5d7f394066ab877767d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const dbRef = ref(db, 'cronograma');
+
+// Listen for save events from main JS
+window.addEventListener('mba-save', (e) => {
+  const { aulas, evals } = e.detail;
+  set(dbRef, { aulas, evals })
+    .then(() => {
+      const el = document.getElementById('save-note');
+      if (el) el.textContent = 'Salvo ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    })
+    .catch(err => console.warn('Firebase save error:', err));
+});
+
+// Listen for real-time updates from Firebase
+onValue(dbRef, (snapshot) => {
+  const data = snapshot.val();
+  if (!data || !data.aulas || !data.evals) return;
+  // Only update if data is different from local (avoid loop)
+  const local = localStorage.getItem('mba_dsa_v4');
+  const remoteStr = JSON.stringify({ aulas: data.aulas, evals: data.evals });
+  if (local !== remoteStr) {
+    localStorage.setItem('mba_dsa_v4', remoteStr);
+    window._aulas = data.aulas;
+    window._evals = data.evals;
+    aulas = data.aulas;
+    evals = data.evals;
+    renderAulas();
+    renderEvals();
+  }
+});
+</script>
+
 </body>
 </html>
