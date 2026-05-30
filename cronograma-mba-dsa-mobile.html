@@ -42,7 +42,7 @@ body {
   border-bottom: 1px solid var(--border);
   padding: 14px 16px;
   position: sticky; top: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  display: flex; align-items: center; gap: 12px;
 }
 .header-group { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .header-logo {
@@ -71,7 +71,8 @@ body {
   appearance: none; -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 7px center;
-  max-width: 120px;
+  max-width: 160px;
+  width: 100%;
 }
 .month-select:focus { border-color: var(--accent); color: var(--text); }
 .clear-month-btn {
@@ -253,8 +254,9 @@ body {
 }
 
 /* eval date row */
-.eval-dates { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.eval-date-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+.eval-dates { display: flex; flex-direction: column; gap: 5px; }
+.eval-date-row { display: flex; align-items: center; gap: 8px; }
+.eval-date-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; width: 32px; flex-shrink: 0; }
 
 ::-webkit-scrollbar { display: none; }
 </style>
@@ -269,15 +271,15 @@ body {
       <span class="header-badge">MBA USP / ESALQ</span>
       <h1>Cronograma <span>DSA</span></h1>
       <span class="header-name">Silviele Sousa</span>
+      <div class="month-filter-wrap" style="margin-top:6px">
+        <select class="month-select" id="month-select-global" onchange="setMonthFilter('global',this.value)">
+          <option value="">TODOS OS MESES</option>
+        </select>
+        <button class="clear-month-btn hidden" id="clear-month-global" onclick="clearMonthFilter('global')" title="Limpar">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>
+        </button>
+      </div>
     </div>
-  </div>
-  <div class="month-filter-wrap">
-    <select class="month-select" id="month-select-global" onchange="setMonthFilter('global',this.value)">
-      <option value="">TODOS OS MESES</option>
-    </select>
-    <button class="clear-month-btn hidden" id="clear-month-global" onclick="clearMonthFilter('global')" title="Limpar">
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg>
-    </button>
   </div>
 </div>
 
@@ -843,8 +845,8 @@ function renderEvals() {
         <div class="card-body">
           <div class="card-title">${e.subject}</div>
           <div class="eval-dates">
-            <span class="eval-date-label">Início</span>${sp}
-            <span class="eval-date-label">Fim</span>${ep}
+            <div class="eval-date-row"><span class="eval-date-label">INÍCIO</span>${sp}</div>
+            <div class="eval-date-row"><span class="eval-date-label">FIM</span>${ep}</div>
           </div>
           <div class="card-meta">${badge}</div>
         </div>
